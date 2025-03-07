@@ -54,9 +54,9 @@ npm run build
 ### Step 4: Run the Extension
 Open VS Code, add the extension code, and follow the build process above.
 
-### Click on F5 and a new window will pop up click 
+ Click on F5 and a new window will pop up click 
  ```CTRL+SHIFT+P```
- ### Select Code Mate and you can use the extension
+ Select Code Mate and you can use the extension
 
 ---
 
