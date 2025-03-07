@@ -1,4 +1,5 @@
-# Code Mate - VS Code Extension & Flask Backend
+# Code Mate - VS Code Extension & ChatBot Application
+To reduce the load in your PC just run the normal lama version, we will run the finetuned model at the Finals
 
 ## Prerequisites
 Ensure you have the following installed:
