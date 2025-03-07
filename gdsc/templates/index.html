@@ -1992,90 +1992,80 @@ input:checked + .toggle-slider:before {
 
         // Chat Functions
         async function sendMessage() {
-            const userInput = document.getElementById("user-input");
-            const messagesContainer = document.querySelector(".messages-container");
-            
-            if (isTyping) return;
-            
-            const message = userInput.value.trim();
-            if (!message) return;
-            
-            // Clear welcome message if present
-            const welcomeMessage = document.querySelector(".welcome-message");
-            if (welcomeMessage) {
-                welcomeMessage.remove();
-            }
-            
-            // Clear any previous error messages
-            const errorMessage = document.querySelector(".error-message");
-            if (errorMessage) {
-                errorMessage.remove();
-            }
-            
-            // Add user message to UI
-            addMessageToUI("user", message);
-            
-            // Save message to local storage
-            saveMessageToLocalStorage("user", message);
-            
-            // Clear input
-            userInput.value = "";
-            userInput.style.height = "auto";
-            document.querySelector(".send-btn").disabled = true;
-            
-            // Show typing indicator
-            showTypingIndicator();
-            
-            try {
-                // Get AI response
-                const aiResponse = await getAIResponse(message);
-                
-                // Hide typing indicator
-                hideTypingIndicator();
-                
-                // Add AI response to UI with feedback buttons
-                addMessageToUI("assistant", aiResponse, message);
-                
-                // Save AI response to local storage
-                saveMessageToLocalStorage("assistant", aiResponse);
-                
-                // Update chat history
-                updateChatHistoryItem(currentChatId);
-            } catch (error) {
-                console.error("Error:", error);
-                
-                // Hide typing indicator
-                hideTypingIndicator();
-                
-                // Show error message
-                const errorDiv = document.createElement("div");
-                errorDiv.className = "error-message";
-                errorDiv.textContent = "Failed to get response from the AI. Please try again.";
-                messagesContainer.appendChild(errorDiv);
-            }
+    const userInput = document.getElementById("user-input");
+    const messagesContainer = document.querySelector(".messages-container");
+
+    if (isTyping) return;
+
+    const message = userInput.value.trim();
+    if (!message) return;
+
+    // Clear welcome message if present
+    const welcomeMessage = document.querySelector(".welcome-message");
+    if (welcomeMessage) {
+        welcomeMessage.remove();
+    }
+
+    // Clear any previous error messages
+    const errorMessage = document.querySelector(".error-message");
+    if (errorMessage) {
+        errorMessage.remove();
+    }
+
+    // Add user message to UI
+    addMessageToUI("user", message);
+
+    // Save message to local storage
+    saveMessageToLocalStorage("user", message);
+
+    // Clear input
+    userInput.value = "";
+    userInput.style.height = "auto";
+    document.querySelector(".send-btn").disabled = true;
+
+    // Show typing indicator
+    showTypingIndicator();
+
+    try {
+        // Send message to Flask backend
+        const response = await fetch("/ask", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ query: message }),
+        });
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch response from the server.");
         }
 
-        // Fixed AI response function that doesn't rely on external API
-        async function getAIResponse(message) {
-            // Create a simulated delay to mimic API call
-            await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
-            
-            // Simple response logic based on message content
-            if (message.toLowerCase().includes("hello") || message.toLowerCase().includes("hi")) {
-                return "Hello! How can I help you with your coding questions today?";
-            } else if (message.toLowerCase().includes("joke")) {
-                return "Why do programmers prefer dark mode? Because light attracts bugs!";
-            } else if (message.toLowerCase().includes("poem")) {
-                return "In lines of code, we find our way,\nThrough logic's maze, day by day.\nDebugging errors, fixing flaws,\nCreating worlds with syntax laws.";
-            } else if (message.toLowerCase().includes("quantum")) {
-                return "Quantum physics explores the behavior of matter and energy at the smallest scales. Key concepts include:\n\n- Wave-particle duality\n- Quantum entanglement\n- Superposition\n- Heisenberg's uncertainty principle\n\nWould you like me to explain any of these concepts in more detail?";
-            } else if (message.toLowerCase().includes("code") || message.toLowerCase().includes("javascript") || message.toLowerCase().includes("function")) {
-                return "Here's a simple JavaScript function that checks if a number is prime:\n\n```javascript\nfunction isPrime(num) {\n  if (num <= 1) return false;\n  if (num <= 3) return true;\n  \n  if (num % 2 === 0 || num % 3 === 0) return false;\n  \n  for (let i = 5; i * i <= num; i += 6) {\n    if (num % i === 0 || num % (i + 2) === 0) return false;\n  }\n  \n  return true;\n}\n\n// Example usage\nconsole.log(isPrime(17)); // true\nconsole.log(isPrime(15)); // false\n```";
-            } else {
-                return "I'm here to help with your coding questions. You can ask me about programming concepts, debugging issues, or even request code examples. What would you like to learn about today?";
-            }
-        }
+        const data = await response.json();
 
+        // Hide typing indicator
+        hideTypingIndicator();
+
+        // Add AI response to UI with feedback buttons
+        addMessageToUI("assistant", data.response, message);
+
+        // Save AI response to local storage
+        saveMessageToLocalStorage("assistant", data.response);
+
+        // Update chat history
+        updateChatHistoryItem(currentChatId);
+    } catch (error) {
+        console.error("Error:", error);
+
+        // Hide typing indicator
+        hideTypingIndicator();
+
+        // Show error message
+        const errorDiv = document.createElement("div");
+        errorDiv.className = "error-message";
+        errorDiv.textContent = "Failed to get response from the AI. Please try again.";
+        messagesContainer.appendChild(errorDiv);
+    }
+}
         function addMessageToUI(role, content, query = null) {
             const messagesContainer = document.querySelector(".messages-container");
             const messageDiv = document.createElement("div");
@@ -2327,7 +2317,7 @@ input:checked + .toggle-slider:before {
                     } else {
                         // Code content
                         let code = parts[i];
-                        let language = "javascript";
+                        let language = "typescript";
                         
                         // Check if language is specified
                         const firstLineBreak = code.indexOf("\n");
