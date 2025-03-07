@@ -23,7 +23,7 @@ pip install -r requirements.txt
 
 ### Step 3: Run the Flask Server
 ```sh
-python gdsc.py
+python app.py
 ```
 The Flask server will run at **http://127.0.0.1:5000**.
 
